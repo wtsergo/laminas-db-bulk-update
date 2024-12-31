@@ -12,6 +12,8 @@ class SelectNotInCondition implements SelectCondition
 
     public function apply(string $field, Where $where): void
     {
-        $where->notIn($field, $this->values);
+        if ($this->values) {
+            $where->notIn($field, $this->values);
+        }
     }
 }
