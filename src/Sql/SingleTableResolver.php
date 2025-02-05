@@ -132,7 +132,7 @@ class SingleTableResolver implements IdResolver
     public function unresolved($value): Identifier
     {
         if (isset($this->resolvedValues[$value])) {
-            return new ResolvedIdentifier($this->resolvedValues[$value]);
+            return new ResolvedIdentifier($this->resolvedValues[$value], $value);
         }
 
         $this->unresolvedValues[$value] = $this->unresolvedValues[$value]

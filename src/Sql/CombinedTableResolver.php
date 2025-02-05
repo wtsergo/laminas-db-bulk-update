@@ -144,14 +144,14 @@ class CombinedTableResolver implements IdResolver
         $key = implode('|', $value);
 
         if (isset($this->resolvedValues[$key])) {
-            return new ResolvedIdentifier($this->resolvedValues[$key]);
+            return new ResolvedIdentifier($this->resolvedValues[$key], $value);
         }
 
         list(, $foreignKey) = $value;
 
         $this->foreignValues[$foreignKey] = $this->foreignValues[$foreignKey] ?? $this->foreignResolver->unresolved($foreignKey);
         $this->unresolvedValues[$key] = $this->unresolvedValues[$key]
-            ?? new UnresolvedIdentifier($key, [$this, 'removeId']);
+            ?? new UnresolvedIdentifier($key, [$this, 'removeId'], $value);
 
         return $this->unresolvedValues[$key];
     }
