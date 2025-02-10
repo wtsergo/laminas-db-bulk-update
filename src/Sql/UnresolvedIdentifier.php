@@ -15,11 +15,6 @@ namespace Wtsergo\LaminasDbBulkUpdate\Sql;
 class UnresolvedIdentifier implements Identifier
 {
     /**
-     * @var callable
-     */
-    private $onDestroy;
-
-    /**
      * @var TInitial
      */
     private mixed $initial;
@@ -29,12 +24,11 @@ class UnresolvedIdentifier implements Identifier
      */
     public function __construct(
         public readonly string $value,
-        callable $onDestroy,
+        public readonly \Closure $onDestroy,
         mixed $initial = null,
     )
     {
         $this->initial = $initial ?? $value;
-        $this->onDestroy = $onDestroy;
     }
 
     /**
@@ -45,7 +39,7 @@ class UnresolvedIdentifier implements Identifier
         return $this->initial;
     }
 
-    public function findValue(array $resolved): int
+    public function findValue(array $resolved): int|string
     {
         if (!isset($resolved[$this->value])) {
             throw new IdentifierNotResolved();

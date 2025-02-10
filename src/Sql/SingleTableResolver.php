@@ -29,11 +29,23 @@ class SingleTableResolver implements IdResolver
      */
     private $targetField;
 
-    /** @var string[] */
+    /**
+     * @var array<string, Identifier>
+     */
     private $unresolvedValues;
 
     /** @var int[] */
     private $resolvedValues = [];
+
+    /**
+     * @var array<string, Identifier>
+     */
+    private array $resolvedIds = [];
+
+    /**
+     * @var \WeakMap<Identifier, mixed>
+     */
+    private \WeakMap $idMap;
 
     /** @var array[] */
     private $incrementRow = [];
@@ -43,12 +55,20 @@ class SingleTableResolver implements IdResolver
      */
     private $filter = [];
 
+    private \Closure $removeId;
+
     public function __construct(Sql $sql, string $tableName, string $sourceField, string $targetField)
     {
         $this->sql = $sql;
         $this->tableName = $tableName;
         $this->sourceField = $sourceField;
         $this->targetField = $targetField;
+        $resolvedValues = &$this->resolvedValues;
+        $unresolvedValues = &$this->unresolvedValues;
+        $resolvedIds = &$this->resolvedIds;
+        $this->removeId = static function (string $value) use (&$resolvedValues, &$unresolvedValues, &$resolvedIds) {
+            unset($resolvedValues[$value], $unresolvedValues[$value], $resolvedIds[$value]);
+        };
     }
 
     public function withAutoIncrement(array $defaultRow): self
@@ -63,9 +83,17 @@ class SingleTableResolver implements IdResolver
      */
     public function resolve(Identifier $value): int
     {
+        if (!$this->canResolve($value)) {
+            throw new IdentifierNotResolved();
+        }
         $this->resolveValues();
 
         return $value->findValue($this->resolvedValues);
+    }
+
+    public function canResolve(Identifier $value): bool
+    {
+        return isset($this->idMap()[$value]);
     }
 
     private function resolveValues()
@@ -126,24 +154,27 @@ class SingleTableResolver implements IdResolver
         }
     }
 
-    /**
-     * Creates a new resolvable id
-     */
-    public function unresolved($value): Identifier
+    private function idMap(): \WeakMap
     {
-        if (isset($this->resolvedValues[$value])) {
-            return new ResolvedIdentifier($this->resolvedValues[$value], $value);
-        }
-
-        $this->unresolvedValues[$value] = $this->unresolvedValues[$value]
-            ?? new UnresolvedIdentifier($value, [$this, 'removeId']);
-
-        return $this->unresolvedValues[$value];
+        return $this->idMap ??= new \WeakMap();
     }
 
-    public function removeId(string $value): void
+    public function unresolved($value): Identifier
     {
-        unset($this->resolvedValues[$value], $this->unresolvedValues[$value]);
+        $unresolved = $this->_unresolved($value);
+        $this->idMap()[$unresolved] = $value;
+        return $unresolved;
+    }
+
+    private function _unresolved($value): Identifier
+    {
+        if (isset($this->resolvedValues[$value])) {
+            return $this->resolvedIds[$value]
+                ??= new ResolvedIdentifier($this->resolvedValues[$value], $value, $value, [$this, 'removeId']);
+        }
+
+        return $this->unresolvedValues[$value]
+            ??= new UnresolvedIdentifier($value, $this->removeId);
     }
 
     public function withFilter(array $filter): self

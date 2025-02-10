@@ -17,5 +17,5 @@ interface Identifier
      * @return TInitial
      */
     public function initial(): mixed;
-    public function findValue(array $resolved): int;
+    public function findValue(array $resolved): int|string|array;
 }

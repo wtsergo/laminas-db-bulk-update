@@ -36,14 +36,28 @@ class CombinedTableResolver implements IdResolver
     /** @var IdResolver */
     private $foreignResolver;
 
-    /** @var string[] */
+    /**
+     * @var array<string, Identifier>
+     */
     private $unresolvedValues;
 
     /** @var int[] */
     private $resolvedValues;
 
+    /**
+     * @var array<string, Identifier>
+     */
+    private array $resolvedIds = [];
+
+    /**
+     * @var \WeakMap<Identifier, mixed>
+     */
+    private \WeakMap $idMap;
+
     /** @var Identifier[] */
     private $foreignValues = [];
+
+    private \Closure $removeId;
 
     public function __construct(
         Sql $sql,
@@ -59,6 +73,12 @@ class CombinedTableResolver implements IdResolver
         $this->targetField = $targetField;
         $this->foreignResolver = $foreignResolver;
         $this->foreignField = $foreignField;
+        $resolvedValues = &$this->resolvedValues;
+        $unresolvedValues = &$this->unresolvedValues;
+        $resolvedIds = &$this->resolvedIds;
+        $this->removeId = static function (string $value) use (&$resolvedValues, &$unresolvedValues, &$resolvedIds) {
+            unset($resolvedValues[$value], $unresolvedValues[$value], $resolvedIds[$value]);
+        };
     }
 
     /**
@@ -66,9 +86,17 @@ class CombinedTableResolver implements IdResolver
      */
     public function resolve(Identifier $value): int
     {
+        if (!$this->canResolve($value)) {
+            throw new IdentifierNotResolved();
+        }
         $this->resolveValues();
 
         return $value->findValue($this->resolvedValues);
+    }
+
+    public function canResolve(Identifier $value): bool
+    {
+        return isset($this->idMap()[$value]);
     }
 
     private function resolveValues()
@@ -136,28 +164,34 @@ class CombinedTableResolver implements IdResolver
         $this->sql->getAdapter()->getDriver()->getConnection()->rollback();
     }
 
-    /**
-     * Creates a new resolvable id
-     */
+    private function idMap(): \WeakMap
+    {
+        return $this->idMap ??= new \WeakMap();
+    }
+
     public function unresolved($value): Identifier
+    {
+        $unresolved = $this->_unresolved($value);
+        $this->idMap()[$unresolved] = $value;
+        return $unresolved;
+    }
+
+    private function _unresolved($value): Identifier
     {
         $key = implode('|', $value);
 
         if (isset($this->resolvedValues[$key])) {
-            return new ResolvedIdentifier($this->resolvedValues[$key], $value);
+            return $this->resolvedIds[$key]
+                ??= new ResolvedIdentifier($this->resolvedValues[$key], $value, $key, $this->removeId);
         }
 
         list(, $foreignKey) = $value;
 
-        $this->foreignValues[$foreignKey] = $this->foreignValues[$foreignKey] ?? $this->foreignResolver->unresolved($foreignKey);
+        $this->foreignValues[$foreignKey] ??= $this->foreignResolver->unresolved($foreignKey);
         $this->unresolvedValues[$key] = $this->unresolvedValues[$key]
-            ?? new UnresolvedIdentifier($key, [$this, 'removeId'], $value);
+            ?? new UnresolvedIdentifier($key, $this->removeId, $value);
 
         return $this->unresolvedValues[$key];
     }
 
-    public function removeId(string $value): void
-    {
-        unset($this->resolvedValues[$value], $this->unresolvedValues[$value]);
-    }
 }

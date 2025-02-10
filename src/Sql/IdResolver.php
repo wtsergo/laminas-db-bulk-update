@@ -14,7 +14,9 @@ interface IdResolver
     /**
      * @throws IdentifierNotResolved when value does not exists and cannot be generated
      */
-    public function resolve(Identifier $value): int;
+    public function resolve(Identifier $value): int|string|array;
+
+    public function canResolve(Identifier $value): bool;
 
     /**
      * Creates a new resolvable id
