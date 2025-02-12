@@ -54,6 +54,8 @@ class InsertOnDuplicate extends InsertMultiple
      */
     private $formatted = [];
 
+    private $ignore = false;
+
     public static function create(string $tableName, array $columns): self
     {
         $insert = (new self($tableName));
@@ -65,6 +67,12 @@ class InsertOnDuplicate extends InsertMultiple
     public function withRow(...$row): self
     {
         $this->rows[] = $row;
+        return $this;
+    }
+
+    public function withIgnore(bool $ignore): self
+    {
+        $this->ignore = $ignore;
         return $this;
     }
 
@@ -187,8 +195,10 @@ class InsertOnDuplicate extends InsertMultiple
     {
         $rowTemplate = sprintf('(%s)', implode(',', array_fill(0, count($this->columnNames), '?')));
 
+        $insertType = $this->ignore ? 'INSERT IGNORE' : 'INSERT';
+
         $statement = sprintf(
-            'INSERT INTO %s (%s) VALUES %s%s',
+            $insertType.' INTO %s (%s) VALUES %s%s',
             $this->resolveTable($this->table, $adapter->getPlatform(), $adapter->getDriver()),
             implode(',', array_map([$adapter->getPlatform(), 'quoteIdentifier'], $this->columnNames)),
             str_repeat(
@@ -204,9 +214,14 @@ class InsertOnDuplicate extends InsertMultiple
 
         $onDuplicateStatements = [];
 
-        foreach ($this->onDuplicate as $columnName) {
+        foreach ($this->onDuplicate as $columnIdx => $columnName) {
+            $columnExpression = 'VALUES(%1$s)';
+            if (!is_numeric($columnIdx)) {
+                $columnName = $columnIdx;
+                $columnExpression = $columnName;
+            }
             $columnName = $adapter->getPlatform()->quoteIdentifier($columnName);
-            $onDuplicateStatements[] = sprintf('%1$s = VALUES(%1$s)', $columnName);
+            $onDuplicateStatements[] = sprintf('%1$s = '.$columnExpression, $columnName);
         }
 
         return sprintf('%s ON DUPLICATE KEY UPDATE %s', $statement, implode(', ', $onDuplicateStatements));
