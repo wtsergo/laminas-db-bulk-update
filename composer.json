@@ -17,6 +17,10 @@
         {
             "name": "Ivan Chepurnyi",
             "email": "ivan.chepurnyi@ecomdev.org"
+        },
+        {
+            "name": "Sergey Boyko",
+            "email": "wtsergo@gmail.com"
         }
     ],
     "autoload": {

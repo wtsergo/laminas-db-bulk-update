@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace Wtsergo\LaminasDbBulkUpdate\Sql;
 
-
 interface IdResolver
 {
     /**
