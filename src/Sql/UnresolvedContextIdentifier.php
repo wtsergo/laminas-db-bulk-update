@@ -5,7 +5,8 @@ namespace Wtsergo\LaminasDbBulkUpdate\Sql;
 /**
  * @template TInitial
  * @template TContext of \Stringable|string|int
- * @implements ContextIdentifier<TInitial, TContext>
+ * @template TExtra
+ * @implements ContextIdentifier<TInitial, TContext, TExtra>
  */
 class UnresolvedContextIdentifier implements ContextIdentifier
 {
@@ -49,10 +50,10 @@ class UnresolvedContextIdentifier implements ContextIdentifier
         return $this->key;
     }
 
-    public function findValue(array $resolved): int|string
+    public function findValue(array $resolved, mixed $extra = null): int|string
     {
         if (!isset($resolved[$this->key])) {
-            throw new IdentifierNotResolved();
+            throw new IdentifierNotResolved($this->key);
         }
 
         return $resolved[$this->key];

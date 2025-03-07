@@ -10,7 +10,8 @@ namespace Wtsergo\LaminasDbBulkUpdate\Sql;
 
 /**
  * @template TInitial
- * @implements Identifier<TInitial>
+ * @template TExtra
+ * @implements Identifier<TInitial, TExtra>
  */
 class ResolvedIdentifier implements Identifier
 {
@@ -34,7 +35,7 @@ class ResolvedIdentifier implements Identifier
         return $this->initial;
     }
 
-    public function findValue(array $resolved): int|string|array
+    public function findValue(array $resolved, mixed $extra = null): int|string|array
     {
         return $this->value;
     }
