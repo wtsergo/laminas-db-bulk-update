@@ -10,6 +10,7 @@ namespace Wtsergo\LaminasDbBulkUpdate\Sql;
 
 /**
  * @template TInitial
+ * @template TExtra
  */
 interface Identifier
 {
@@ -17,5 +18,11 @@ interface Identifier
      * @return TInitial
      */
     public function initial(): mixed;
-    public function findValue(array $resolved): int|string|array;
+
+    /**
+     * @param array $resolved
+     * @param TExtra $extra
+     * @return int|string|array
+     */
+    public function findValue(array $resolved, mixed $extra = null): int|string|array;
 }

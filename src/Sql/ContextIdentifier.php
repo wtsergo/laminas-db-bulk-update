@@ -5,7 +5,8 @@ namespace Wtsergo\LaminasDbBulkUpdate\Sql;
 /**
  * @template TInitial
  * @template TContext of \Stringable|string|int
- * @extends Identifier<TInitial>
+ * @template TExtra
+ * @extends Identifier<TInitial, TExtra>
  */
 interface ContextIdentifier extends Identifier
 {
