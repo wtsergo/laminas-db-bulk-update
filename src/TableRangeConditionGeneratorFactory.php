@@ -17,6 +17,8 @@ class TableRangeConditionGeneratorFactory
 {
     public const DEFAULT_RANGE_SIZE = 500;
 
+    private array $filter = [];
+
     public function __construct(
         protected Sql $sql,
         protected SelectConditionFactory $conditionFactory,
@@ -36,7 +38,8 @@ class TableRangeConditionGeneratorFactory
             ->columns([
                 'min' => new Literal(sprintf('MIN(%s)', $fieldName)),
                 'max' => new Literal(sprintf('MAX(%s)', $fieldName)),
-            ]);
+            ])
+            ->where($this->filter);
 
         list($minValue, $maxValue) = array_values(
             $this->sql->prepareStatementForSqlObject($select)->execute()->current()
@@ -59,5 +62,12 @@ class TableRangeConditionGeneratorFactory
         }
 
         return new TableRangeConditionGenerator($this->conditionFactory, (int)$minValue, (int)$maxValue, $ranges);
+    }
+
+    public function withFilter(array $filter): self
+    {
+        $clone = clone $this;
+        $clone->filter = $filter;
+        return $clone;
     }
 }
