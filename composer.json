@@ -5,7 +5,7 @@
     "require": {
         "php": "^8.2",
         "laminas/laminas-db": "^2.20",
-        "nanawel/zend-db-sql-insertmultiple": "^2.1",
+        "wtsergo/zend-db-sql-insertmultiple": "^1||dev-master",
         "league/csv": "^9.2",
         "ext-pdo": "*"
     },
