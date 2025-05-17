@@ -10,7 +10,7 @@ interface ContextIdResolver
     /**
      * @throws IdentifierNotResolved when value does not exists and cannot be generated
      */
-    public function resolve(ContextIdentifier $value): int|string|array;
+    public function resolve(ContextIdentifier $value): int|string|array|null;
 
     public function canResolve(ContextIdentifier $value): bool;
 

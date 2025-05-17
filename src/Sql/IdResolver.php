@@ -13,7 +13,7 @@ interface IdResolver
     /**
      * @throws IdentifierNotResolved when value does not exists and cannot be generated
      */
-    public function resolve(Identifier $value): int|string|array;
+    public function resolve(Identifier $value): int|string|array|null;
 
     public function canResolve(Identifier $value): bool;
 
