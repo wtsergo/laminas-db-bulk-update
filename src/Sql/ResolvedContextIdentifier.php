@@ -53,4 +53,9 @@ class ResolvedContextIdentifier implements ContextIdentifier
     {
         if (isset($this->onDestroy)) ($this->onDestroy)($this->key);
     }
+
+    public function __toString(): string
+    {
+        return $this->key();
+    }
 }

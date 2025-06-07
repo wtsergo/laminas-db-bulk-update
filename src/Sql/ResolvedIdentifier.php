@@ -44,4 +44,9 @@ class ResolvedIdentifier implements Identifier
     {
         if (isset($this->onDestroy) && isset($this->key)) ($this->onDestroy)($this->key);
     }
+
+    public function __toString(): string
+    {
+        return $this->value;
+    }
 }

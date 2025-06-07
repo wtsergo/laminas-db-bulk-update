@@ -53,4 +53,9 @@ class UnresolvedIdentifier implements Identifier
     {
         ($this->onDestroy)($this->value);
     }
+
+    public function __toString(): string
+    {
+        return $this->initial;
+    }
 }

@@ -63,4 +63,9 @@ class UnresolvedContextIdentifier implements ContextIdentifier
     {
         ($this->onDestroy)($this->key);
     }
+
+    public function __toString(): string
+    {
+        return $this->key();
+    }
 }
