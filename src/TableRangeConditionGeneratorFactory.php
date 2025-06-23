@@ -9,9 +9,7 @@ declare(strict_types=1);
 namespace Wtsergo\LaminasDbBulkUpdate;
 
 use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\Sql\Literal;
-use Laminas\Db\Sql\Sql;
-use Laminas\Db\Sql\Where;
+use Laminas\Db\Sql;
 
 class TableRangeConditionGeneratorFactory
 {
@@ -20,7 +18,7 @@ class TableRangeConditionGeneratorFactory
     private array $filter = [];
 
     public function __construct(
-        protected Sql $sql,
+        protected Sql\Sql $sql,
         protected SelectConditionFactory $conditionFactory,
         protected int $rangeSize = self::DEFAULT_RANGE_SIZE
     )
@@ -29,15 +27,15 @@ class TableRangeConditionGeneratorFactory
 
     public static function createFromAdapter(Adapter $adapter, int $rangeSize = self::DEFAULT_RANGE_SIZE): self
     {
-        return new self(new Sql($adapter), new SelectConditionFactory(), $rangeSize);
+        return new self(new Sql\Sql($adapter), new SelectConditionFactory(), $rangeSize);
     }
 
     public function createForTable(string $tableName, string $fieldName): TableRangeConditionGenerator
     {
         $select = $this->sql->select($tableName)
             ->columns([
-                'min' => new Literal(sprintf('MIN(%s)', $fieldName)),
-                'max' => new Literal(sprintf('MAX(%s)', $fieldName)),
+                'min' => new Sql\Expression(sprintf('MIN(%s)', $fieldName)),
+                'max' => new Sql\Expression(sprintf('MAX(%s)', $fieldName)),
             ])
             ->where($this->filter);
 
@@ -46,13 +44,15 @@ class TableRangeConditionGeneratorFactory
         );
 
 
-        $range = new Literal(sprintf('CEIL(%s / %2$d) * %2$d', $fieldName, $this->rangeSize));
+        $range = new Sql\Expression(sprintf('CEIL(%s / %2$d) * %2$d', $fieldName, $this->rangeSize));
+        $order = new Sql\Expression(sprintf('CEIL(%s / %2$d) * %2$d ASC', $fieldName, $this->rangeSize));
 
         $select = $this->sql->select($tableName)
             ->columns([
                 'range' => $range
             ])
-            ->group($range);
+            ->group($range)
+            ->order($order)
         ;
 
         $ranges = [];
