@@ -1,0 +1,25 @@
+<?php
+
+namespace Wtsergo\LaminasDbBulkUpdate\Sql\TupleIdResolver;
+
+use Wtsergo\Misc\Helper\Dto;
+
+class Context
+{
+    use Dto;
+
+    public function __construct(
+        public readonly string    $tableName,
+        public readonly string    $targetField,
+        public readonly array     $tupleColumns,
+        public readonly array     $incrementRow = [],
+        public readonly ?\Closure $initRow = null,
+        public readonly array     $filter = [],
+        public readonly bool      $generate = false,
+        public readonly bool      $dryRun = false,
+        public readonly ?\Closure $cast = null,
+        public readonly ?\Closure $selectBuilder = null,
+    )
+    {
+    }
+}
