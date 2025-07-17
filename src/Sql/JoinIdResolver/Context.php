@@ -4,11 +4,11 @@ namespace Wtsergo\LaminasDbBulkUpdate\Sql\JoinIdResolver;
 
 use Laminas\Db\Sql;
 use Wtsergo\LaminasDbBulkUpdate\Sql\JoinIdResolver;
-use Wtsergo\Misc\Helper\Dto;
+use Wtsergo\Misc\Helper\DtoTrait;
 
 class Context
 {
-    use Dto;
+    use DtoTrait;
 
     /**
      * @param \Closure(Sql\Sql, JoinIdResolver\Context, array): Sql\Select $selectBuilder

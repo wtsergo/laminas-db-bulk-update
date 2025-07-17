@@ -2,11 +2,11 @@
 
 namespace Wtsergo\LaminasDbBulkUpdate\Sql\TupleIdResolver;
 
-use Wtsergo\Misc\Helper\Dto;
+use Wtsergo\Misc\Helper\DtoTrait;
 
 class Context
 {
-    use Dto;
+    use DtoTrait;
 
     public function __construct(
         public readonly string    $tableName,
