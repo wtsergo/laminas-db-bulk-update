@@ -2,9 +2,9 @@
 
 namespace Wtsergo\LaminasDbBulkUpdate\Sql\JoinIdResolver;
 
+use Fastatsu\DataMate\Helper\DtoTrait;
 use Laminas\Db\Sql;
 use Wtsergo\LaminasDbBulkUpdate\Sql\JoinIdResolver;
-use Wtsergo\Misc\Helper\DtoTrait;
 
 class Context
 {
