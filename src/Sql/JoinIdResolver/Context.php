@@ -2,7 +2,7 @@
 
 namespace Wtsergo\LaminasDbBulkUpdate\Sql\JoinIdResolver;
 
-use Fastatsu\DataMate\Helper\DtoTrait;
+use Flyokai\DataMate\Helper\DtoTrait;
 use Laminas\Db\Sql;
 use Wtsergo\LaminasDbBulkUpdate\Sql\JoinIdResolver;
 

@@ -2,7 +2,7 @@
 
 namespace Wtsergo\LaminasDbBulkUpdate\Sql\TupleIdResolver;
 
-use Fastatsu\DataMate\Helper\DtoTrait;
+use Flyokai\DataMate\Helper\DtoTrait;
 
 class Context
 {

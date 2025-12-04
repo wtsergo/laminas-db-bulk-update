@@ -2,7 +2,7 @@
 
 namespace Wtsergo\LaminasDbBulkUpdate\Sql\PlainIdResolver;
 
-use Fastatsu\DataMate\Helper\DtoTrait;
+use Flyokai\DataMate\Helper\DtoTrait;
 
 class Context
 {
